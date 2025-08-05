@@ -15,7 +15,4 @@ async function getMyIpAddress() {
     }
 };
 
-const main = async () => console.log(await getMyIpAddress())
-main();
-
 export default getMyIpAddress;
