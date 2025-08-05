@@ -38,7 +38,7 @@ export class AwsHandsonStack extends cdk.Stack {
 		// IAM policy
 		const yourBasicS3Policy = new iam.ManagedPolicy(this, 'your-basic-S3-policy', {
 			managedPolicyName: 'your-basic-s3-policy',
-			description: 'S3 access policy with IP address restriction for kurita202502 bucket',
+			description: 'S3 access policy with IP address restriction',
 			statements: [
 				new iam.PolicyStatement({
 					effect: iam.Effect.ALLOW,
@@ -125,87 +125,92 @@ export class AwsHandsonStack extends cdk.Stack {
 		});
 
 		// using cloudformation level constructs (prolly L1?) because it seems like there's no l2 constructs waf v2 yet.
-		// waf web acl with managed rules and ip allowlist
-		const webAcl = new wafv2.CfnWebACL(this, 'kurita-waf', {
-			name: 'kurita_waf',
+		// waf web access contro, list with managed rules and ip allowlist
+		const webAcl = new wafv2.CfnWebACL(this, 'your-web-acl', {
+			name: 'your-web-acl-name',
 			scope: 'CLOUDFRONT',
 			defaultAction: { block: {} }, // block by default
 			rules: [
 				// allow specific ips first (highest priority)
 				{
-				name: 'kurita_rule',
-				priority: 0,
-				statement: {
-					ipSetReferenceStatement: {
-					arn: ipSet.attrArn,
+					name: 'your-web-acl-rule',
+					priority: 0,
+					statement: {
+						ipSetReferenceStatement: {
+							arn: ipSet.attrArn,
+						},
 					},
-				},
-				action: { allow: {} },
-				visibilityConfig: {
-					sampledRequestsEnabled: true,
-					cloudWatchMetricsEnabled: true,
-					metricName: 'kurita_rule',
-				},
+					action: { allow: {} },
+					visibilityConfig: {
+						sampledRequestsEnabled: true,
+						cloudWatchMetricsEnabled: true,
+						metricName: 'your-acl-metric',
+					},
 				},
 				// aws managed rule: core rule set
 				{
-				name: 'AWSManagedRulesCore',
-				priority: 1,
-				overrideAction: { none: {} },
-				statement: {
-					managedRuleGroupStatement: {
-					vendorName: 'AWS',
-					name: 'AWSManagedRulesCommonRuleSet',
+					name: 'AWSManagedRulesCore',
+					priority: 1,
+					overrideAction: { none: {} },
+					statement: {
+						managedRuleGroupStatement: {
+						vendorName: 'AWS',
+						name: 'AWSManagedRulesCommonRuleSet',
+						},
 					},
-				},
-				visibilityConfig: {
-					sampledRequestsEnabled: true,
-					cloudWatchMetricsEnabled: true,
-					metricName: 'AWSManagedRulesCore',
-				},
+					visibilityConfig: {
+						sampledRequestsEnabled: true,
+						cloudWatchMetricsEnabled: true,
+						metricName: 'AWSManagedRulesCore',
+					},
 				},
 				// aws managed rule: ip reputation list
 				{
-				name: 'AWSManagedRulesIPReputation',
-				priority: 2,
-				overrideAction: { none: {} },
-				statement: {
-					managedRuleGroupStatement: {
-					vendorName: 'AWS',
-					name: 'AWSManagedRulesAmazonIpReputationList',
+					name: 'AWSManagedRulesIPReputation',
+					priority: 2,
+					overrideAction: { none: {} },
+					statement: {
+						managedRuleGroupStatement: {
+						vendorName: 'AWS',
+						name: 'AWSManagedRulesAmazonIpReputationList',
+						},
 					},
-				},
-				visibilityConfig: {
-					sampledRequestsEnabled: true,
-					cloudWatchMetricsEnabled: true,
-					metricName: 'AWSManagedRulesIPReputation',
-				},
+					visibilityConfig: {
+						sampledRequestsEnabled: true,
+						cloudWatchMetricsEnabled: true,
+						metricName: 'AWSManagedRulesIPReputation',
+					},
 				},
 				// aws managed rule: anonymous ip list
 				{
-				name: 'AWSManagedRulesAnonymousIP',
-				priority: 3,
-				overrideAction: { none: {} },
-				statement: {
-					managedRuleGroupStatement: {
-					vendorName: 'AWS',
-					name: 'AWSManagedRulesAnonymousIpList',
+					name: 'AWSManagedRulesAnonymousIP',
+					priority: 3,
+					overrideAction: { none: {} },
+					statement: {
+						managedRuleGroupStatement: {
+						vendorName: 'AWS',
+						name: 'AWSManagedRulesAnonymousIpList',
+						},
 					},
-				},
-				visibilityConfig: {
-					sampledRequestsEnabled: true,
-					cloudWatchMetricsEnabled: true,
-					metricName: 'AWSManagedRulesAnonymousIP',
-				},
+					visibilityConfig: {
+						sampledRequestsEnabled: true,
+						cloudWatchMetricsEnabled: true,
+						metricName: 'AWSManagedRulesAnonymousIP',
+					},
 				},
 			],
 			visibilityConfig: {
 				sampledRequestsEnabled: true,
 				cloudWatchMetricsEnabled: true,
-				metricName: 'kurita_waf',
+				metricName: 'your-cloudwatch-metric-name',
 			},
 		});
 
+		// output
+		new cdk.CfnOutput(this, 'WebsiteURL', {
+			value: `https://${yourDistribution.distributionDomainName}`,
+			description: 'cloudfront URL',
+		});
 
 	}
 }
