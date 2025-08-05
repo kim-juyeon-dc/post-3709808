@@ -4,11 +4,6 @@ import getMyIpAddress 	from '@/lib/utils/getMyIPAddress';
 import { MainStack } 	from '@/lib/main-stack';
 import { WAFStack } 	from '@/lib/waf-stack';
 
-// types
-// import type { MainStackProps } from '@/lib/main-stack';
-// import type { WAFStackProps }  from '@/lib/waf-stack';
-
-
 const main = async () => {
 	const app = new cdk.App();
 

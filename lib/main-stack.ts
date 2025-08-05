@@ -17,13 +17,12 @@ export class MainStack extends cdk.Stack {
         super(scope, id, props);
 
         const {
-            yourIpAddress,
+            // yourIpAddress,
             webAclArn,
         } = props;
         
         // create your first bucket
         const yourBucket = new s3.Bucket(this, 'your-s3-bucket', {
-            bucketName: 'your-bucket-name',
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
             removalPolicy: cdk.RemovalPolicy.DESTROY,
             autoDeleteObjects: true,
@@ -37,56 +36,56 @@ export class MainStack extends cdk.Stack {
         });
 
         // IAM policy
-        const yourBasicS3Policy = new iam.ManagedPolicy(this, 'your-basic-S3-policy', {
-            managedPolicyName: 'your-basic-s3-policy',
-            description: 'S3 access policy with IP address restriction',
-            statements: [
-                new iam.PolicyStatement({
-                    effect: iam.Effect.ALLOW,
-                    actions: [
-                        's3:PutObject',
-                        's3:GetObject',
-                        's3:DeleteObject'
-                    ],
-                    resources: [ yourBucket.arnForObjects('*') ],
-                    conditions: {
-                        IpAddress: {
-                            'aws:SourceIp': yourIpAddress,
-                        }
-                    },
-                }),
-                new iam.PolicyStatement({
-                    effect: iam.Effect.ALLOW,
-                    actions: ['s3:ListBucket'],
-                    resources: [ yourBucket.bucketArn ],
-                    conditions: {
-                        IpAddress: {
-                            'aws:SourceIp': yourIpAddress,
-                        }
-                    },
-                }),
-            ],
-        });
+        // const yourBasicS3Policy = new iam.ManagedPolicy(this, 'your-basic-S3-policy', {
+        //     managedPolicyName: 'your-basic-s3-policy',
+        //     description: 'S3 access policy with IP address restriction',
+        //     statements: [
+        //         new iam.PolicyStatement({
+        //             effect: iam.Effect.ALLOW,
+        //             actions: [
+        //                 's3:PutObject',
+        //                 's3:GetObject',
+        //                 's3:DeleteObject'
+        //             ],
+        //             resources: [ yourBucket.arnForObjects('*') ],
+        //             conditions: {
+        //                 IpAddress: {
+        //                     'aws:SourceIp': yourIpAddress,
+        //                 }
+        //             },
+        //         }),
+        //         new iam.PolicyStatement({
+        //             effect: iam.Effect.ALLOW,
+        //             actions: ['s3:ListBucket'],
+        //             resources: [ yourBucket.bucketArn ],
+        //             conditions: {
+        //                 IpAddress: {
+        //                     'aws:SourceIp': yourIpAddress,
+        //                 }
+        //             },
+        //         }),
+        //     ],
+        // });
 
-        // define your iam user
-        const yourIAMUser = new iam.User(this, 'your-iam-user', {
-            userName: 'your-iam-user',
-            managedPolicies: [ yourBasicS3Policy, ],
-        });
-        const accessKey = new iam.AccessKey(this, 'your-iam-user-access-key', {
-            user: yourIAMUser,
-        });
+        // // define your iam user
+        // const yourIAMUser = new iam.User(this, 'your-iam-user', {
+        //     userName: 'your-iam-user',
+        //     managedPolicies: [ yourBasicS3Policy, ],
+        // });
+        // const accessKey = new iam.AccessKey(this, 'your-iam-user-access-key', {
+        //     user: yourIAMUser,
+        // });
 
         // cloudWatch Logs group for cf logging
+        
         const logGroup = new logs.LogGroup(this, 'your-cloudfront-log-group', {
-                logGroupName: '/aws/cloudfront/yourname', // it's value doesn't have to be path notation
-                retention: logs.RetentionDays.ONE_MONTH, // how long the log will be retained
-                removalPolicy: cdk.RemovalPolicy.DESTROY, // (?) destroy logs when the stack is deleted
-            });
+            logGroupName: '/aws/cloudfront/yourname', // it's value doesn't have to be path notation
+            retention: logs.RetentionDays.ONE_MONTH, // how long the log will be retained
+            removalPolicy: cdk.RemovalPolicy.DESTROY, // (?) destroy logs when the stack is deleted
+        });
 
         // s3 bucket for cf access logs
         const logBucket = new s3.Bucket(this, 'cloudfront-log-bucket', {
-            bucketName: 'your-bucket-for-logs',
             removalPolicy: cdk.RemovalPolicy.DESTROY,
             autoDeleteObjects: true, // delete objects when bucket or stack gets deleted
         });
@@ -103,12 +102,13 @@ export class MainStack extends cdk.Stack {
             webAclId: webAclArn,
             enableLogging: true,
             logBucket,
-            errorResponses: [
-                {
-                    httpStatus: 403,
-                    responseHttpStatus: 404,
-                },
-            ],
+            // comment out custom error responses in order to avoid unconfiguration error due to missing responsepagepath prop
+            // errorResponses: [
+            //     {
+            //         httpStatus: 403,
+            //         responseHttpStatus: 404,
+            //     },
+            // ],
         });
 
         // output
