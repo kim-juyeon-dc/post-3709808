@@ -78,9 +78,9 @@ export class AwsHandsonStack extends cdk.Stack {
 
 		// cloudWatch Logs group for cf logging
 		const logGroup = new logs.LogGroup(this, 'your-cloudfront-log-group', {
-			logGroupName: '/aws/cloudfront/yourname', // it's value doesn't have to be path notation
-			retention: logs.RetentionDays.ONE_MONTH, // how long the log will be retained
-			removalPolicy: cdk.RemovalPolicy.DESTROY, // (?) destroy logs when the stack is deleted
+				logGroupName: '/aws/cloudfront/yourname', // it's value doesn't have to be path notation
+				retention: logs.RetentionDays.ONE_MONTH, // how long the log will be retained
+				removalPolicy: cdk.RemovalPolicy.DESTROY, // (?) destroy logs when the stack is deleted
 			});
 
 		// s3 bucket for cf access logs
@@ -112,7 +112,7 @@ export class AwsHandsonStack extends cdk.Stack {
 
 		// ip set for allowed ips (mynavi office + remote work ips)
 		const ipSet = new wafv2.CfnIPSet(this, 'your-waf', {
-			name: 'your waf nam',
+			name: 'your waf name',
 			scope: 'CLOUDFRONT', // global for cloudfront
 			ipAddressVersion: 'IPV4',
 			addresses: [
@@ -154,8 +154,8 @@ export class AwsHandsonStack extends cdk.Stack {
 					overrideAction: { none: {} },
 					statement: {
 						managedRuleGroupStatement: {
-						vendorName: 'AWS',
-						name: 'AWSManagedRulesCommonRuleSet',
+							vendorName: 'AWS',
+							name: 'AWSManagedRulesCommonRuleSet',
 						},
 					},
 					visibilityConfig: {
@@ -171,8 +171,8 @@ export class AwsHandsonStack extends cdk.Stack {
 					overrideAction: { none: {} },
 					statement: {
 						managedRuleGroupStatement: {
-						vendorName: 'AWS',
-						name: 'AWSManagedRulesAmazonIpReputationList',
+							vendorName: 'AWS',
+							name: 'AWSManagedRulesAmazonIpReputationList',
 						},
 					},
 					visibilityConfig: {

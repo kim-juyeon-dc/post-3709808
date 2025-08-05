@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-import * as cdk            	from 'aws-cdk-lib';
-import { AwsHandsonStack } 	from '@/lib/aws-handson-stack';
-import getMyIpAddress 		from '@/lib/utils/getMyIPAddress';
+import * as cdk         from 'aws-cdk-lib';
+import getMyIpAddress 	from '@/lib/utils/getMyIPAddress';
+import { MainStack } 	from '@/lib/main-stack';
+import { WAFStack } 	from '@/lib/waf-stack';
 
 // types
-import type { AwsHandsonStackProps } from '@/lib/aws-handson-stack';
+// import type { MainStackProps } from '@/lib/main-stack';
+// import type { WAFStackProps }  from '@/lib/waf-stack';
 
 
 const main = async () => {
@@ -13,24 +15,21 @@ const main = async () => {
 	const yourIpAddress = await getMyIpAddress();
 
 	if (yourIpAddress) {
-		const awsHandsonStackProps: AwsHandsonStackProps = {
-			/* If you don't specify 'env', this stack will be environment-agnostic.
-			* Account/Region-dependent features and context lookups will not work,
-			* but a single synthesized template can be deployed anywhere. */
-		
-			/* Uncomment the next line to specialize this stack for the AWS Account
-			* and Region that are implied by the current CLI configuration. */
-			// env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-		
-			/* Uncomment the next line if you know exactly what Account and Region you
-			* want to deploy the stack to. */
-			// env: { account: '123456789012', region: 'us-east-1' },
-		
-			/* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
+
+		// global(us-east-1) region
+		const wafStack = new WAFStack(app, 'WafStack', {
+			env: { region: 'us-east-1' },
 			yourIpAddress,
-		}
-	
-		new AwsHandsonStack(app, 'AwsHandsonStack', awsHandsonStackProps);
+			crossRegionReferences: true,
+		});
+
+		// tokyo region
+		new MainStack(app, 'MainStack', {
+			env: { region: 'ap-northeast-1' },
+			yourIpAddress,
+			crossRegionReferences: true,
+			webAclArn: wafStack.webAclArn,
+		});
 	}
 }
 main();
