@@ -1,4 +1,8 @@
-# AWS Hands-on
+# CDK Implemntation for [this article](https://mynavi.docbase.io/posts/3709808#post-activities-list)
+
+This is a cdk implementation for what's described in [this article](https://mynavi.docbase.io/posts/3709808#post-activities-list).
+
+I'm going to fork branches based on each step written in the article, so that the coders reading this repo can follow each process step by step
 
 ## Description
 
